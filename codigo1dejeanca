@@ -1,0 +1,22 @@
+Inicio para hacer el registro de usuario
+
+def registrar_usuario():
+    nombre = input("Nombre: ")
+    apellido = input("Apellido: ")
+    cedula = input("Número de Cédula: ")
+    tipo_estudiante = input("Tipo de estudiante (1 para Primer Ingreso, 2 para Regular): ")
+    
+    if tipo_estudiante == '1':
+        tipo_estudiante = "Primer Ingreso"
+    elif tipo_estudiante == '2':
+        tipo_estudiante = "Regular"
+    else:
+        print("Tipo de estudiante no válido. Debe ser '1' para Primer Ingreso o '2' para Regular.")
+        return
+    
+    usuarios[cedula] = {
+        'Nombre': nombre,
+        'Apellido': apellido,
+        'Tipo Estudiante': tipo_estudiante
+    }
+    print(f'Usuario con Cédula {cedula} registrado con éxito.')
