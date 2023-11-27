@@ -1,0 +1,98 @@
+paquetes = {}
+
+def crear_usuario():
+    usuario_id = len(paquetes) + 1
+    paquetes[usuario_id] = {
+        'Nombre': input("Nombre: "),
+        'Apellido': input("Apellido: "),
+        'Correo electronico': input("Correo electronico: "),
+        'Nombre del comercio': input("Nombre del comercio: "),
+        'ubicacion del local': input("Ubicacion del local: "),
+        'Teléfono': input("Número de teléfono: "),
+        'Producto': input("Nombre del producto adquirido: "),
+        'Estado': 'CREADO',
+        'Precio': float(input("Precio del producto: "))
+    }
+    factura_electronica(usuario_id)
+    crear_paquetes(usuario_id)
+    crear_guia(usuario_id)
+    guardar_datos_en_archivo()
+    print(f'Usuario registrado con éxito. Número de paquete: {usuario_id}')
+
+def crear_paquetes(usuario_id):
+    print(f"Creando paquete {usuario_id}...")
+    paquetes[usuario_id].update({
+        'Nombre Destinatario': input("Nombre de destinatario: "),
+        'Teléfono Destinatario': input("Teléfono de destinatario: "),
+        'Número de Cédula': input("Número de cédula: "),
+        'Peso de paquete': input("Peso de paquete(KG): "),
+        'Cobro Contra Entrega': input("¿Cobro contra entrega? (Sí/No): ").lower(),
+        'Monto de Cobro': float(input("Ingrese el monto a cobrar en colones: "))
+            if input("¿Cobro contra entrega? (Sí/No): ").lower() == 'sí'
+            else 0.0
+    })
+    print(f"Paquete {usuario_id} creado con éxito.")
+    guardar_datos_en_archivo()
+
+def factura_electronica(usuario_id):
+    precio = paquetes[usuario_id]['Precio']
+    print(f"Factura del paquete {usuario_id} - Total a pagar: ${precio}")
+
+def crear_guia(usuario_id):
+    print(f"Creando guía para el paquete {usuario_id}...")
+
+def cambiar_estado():
+    usuario_id = int(input("Ingrese el número de paquete: "))
+    if usuario_id in paquetes:
+        paquetes[usuario_id]['Estado'] = input("Ingrese el nuevo estado (Creado/Recolectado/Entregado/Entrega fallida): ")
+        print(f"Estado del paquete {usuario_id} cambiado a: {paquete[usuario_id]['Estado']}")
+        guardar_datos_en_archivo()
+    else:
+        print("Número de paquete no válido. Registre el paquete primero.")
+
+def rastrear_producto():
+    usuario_id = int(input("Ingrese el número de paquete: "))
+    if usuario_id in paquetes:
+        print(f"Estado actual del paquete {usuario_id}: {productos[usuario_id]['Estado']}")
+    else:
+        print("Número de paquete no válido. Registre el paquete primero.")
+
+def guardar_datos_en_archivo():
+    with open("datosmensajeriafidelitas.txt", "w") as archivo:
+        archivo.write("=== PAQUETES Y USUARIOS ===\n")
+        for usuario_id, info_paquetes in sorted(paquetes.items()):
+            archivo.write(f"Número de paquete: {usuario_id}\n")
+            for clave, valor in sorted(info_paquetes.items()):
+                archivo.write(f"{clave}: {valor}\n")
+            archivo.write("\n")
+
+print("---BIENVENIDO AL SISTEMA DE MENSAJERÍA DE PAQUETES---")
+
+while True:
+    print("Menú:")
+    print("1. Creación de usuario")
+    print("2. Crear paquete")
+    print("3. Consultar estado del paquete")
+    print("4. Cambiar estado del paquete")
+    print("5. Rastrear paquete")
+    print("6. Salir")
+
+    opcion = input("Seleccione una opción: ")
+
+    if opcion == '1':
+        crear_usuario()
+    elif opcion == '2':
+        usuario_id = int(input("Ingrese el número de producto para el paquete: "))
+        if usuario_id in paquetes:
+            crear_paquete(usuario_id)
+        else:
+            print("Número de paquete no válido. Registre el paquete primero.")
+    elif opcion == '3':
+        rastrear_paquetes()
+    elif opcion == '4':
+        cambiar_estado()
+    elif opcion == '5':
+        print("Guardando datos en el archivo 'datosmensajeriafidelitas.txt'")
+        break
+    else:
+        print("Opción no válida. Por favor, seleccione una opción válida.")
