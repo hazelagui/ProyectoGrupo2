@@ -1,92 +1,237 @@
+import os
+
 usuarios = {}
-consultas = {}
-#A partir de aquí, se definen cada método según la opción del usuario
+paquetes = {}
+facturas = {}
+numero_guia_actual = 1
+
+# Crear el archivo si no existe y cargar datos existentes
+def inicializar_sistema():
+    global usuarios, paquetes, facturas, numero_guia_actual
+    if not os.path.exists("basedemensajeria.txt"):
+        with open("basedemensajeria.txt", "w") as file:
+            file.write("\n\n\n1")
+    else:
+        with open("basedemensajeria.txt", "r") as file:
+            lines = file.readlines()
+            usuarios_str = lines[0].strip() if lines else ""
+            paquetes_str = lines[1].strip() if len(lines) > 1 else ""
+            facturas_str = lines[2].strip() if len(lines) > 2 else ""
+            numero_guia_actual = int(lines[3].strip()) if len(lines) > 3 else 1
+
+            if usuarios_str:
+                usuarios = eval(usuarios_str)
+            if paquetes_str:
+                paquetes = eval(paquetes_str)
+            if facturas_str:
+                facturas = eval(facturas_str)
+
+# Guardar datos en el archivo
+def guardar_datos():
+    with open("basedemensajeria.txt", "w") as file:
+        file.write(str(usuarios) + "\n")
+        file.write(str(paquetes) + "\n")
+        file.write(str(facturas) + "\n")
+        file.write(str(numero_guia_actual))
+
+# Funciones del segundo código
+
+def crear_paquetes(usuario_id):
+    print(f"Creando paquete {usuario_id}...")
+    paquetes[usuario_id].update({
+        'Nombre Destinatario': input("Nombre de destinatario: "),
+        'Teléfono Destinatario': input("Teléfono de destinatario: "),
+        'Número de Cédula': input("Número de cédula: "),
+        'Peso de paquete': input("Peso de paquete(KG): "),
+        'Cobro Contra Entrega': input("¿Cobro contra entrega? (Sí/No): ").lower(),
+        'Monto de Cobro': float(input("Ingrese el monto a cobrar en colones: "))
+            if input("¿Cobro contra entrega? (Sí/No): ").lower() == 'sí'
+            else 0.0
+    })
+    print(f"Paquete {usuario_id} creado con éxito.")
+    guardar_datos()
+
+def factura_electronica(usuario_id):
+    precio = paquetes[usuario_id]['Precio']
+    print(f"Factura del paquete {usuario_id} - Total a pagar: ${precio}")
+
+def crear_guia(usuario_id):
+    print(f"Creando guía para el paquete {usuario_id}...")
+
+def cambiar_estado():
+    usuario_id = int(input("Ingrese el número de paquete: "))
+    if usuario_id in paquetes:
+        paquetes[usuario_id]['Estado'] = input("Ingrese el nuevo estado (Creado/Recolectado/Entregado/Entrega fallida): ")
+        print(f"Estado del paquete {usuario_id} cambiado a: {paquetes[usuario_id]['Estado']}")
+        guardar_datos()
+    else:
+        print("Número de paquete no válido. Registre el paquete primero.")
+
+def rastrear_paquetes():
+    usuario_id = int(input("Ingrese el número de paquete: "))
+    if usuario_id in paquetes:
+        print(f"Estado actual del paquete {usuario_id}: {paquetes[usuario_id]['Estado']}")
+    else:
+        print("Número de paquete no válido. Registre el paquete primero.")
+
+# Funciones del primer código
+
 def registrar_usuario():
-    nombre = input("Nombre: ")
-    apellido = input("Apellido: ")
-    cedula = input("Número de Cédula: ")
-    tipo_estudiante = input("Tipo de estudiante (1 para Primer Ingreso, 2 para Regular): ")
-    
-    if tipo_estudiante == '1':
-        tipo_estudiante = "Primer Ingreso"
-    elif tipo_estudiante == '2':
-        tipo_estudiante = "Regular"
-    else:
-        print("Tipo de estudiante no válido. Debe ser '1' para Primer Ingreso o '2' para Regular.")
-        return
-    
-    usuarios[cedula] = {
-        'Nombre': nombre,
-        'Apellido': apellido,
-        'Tipo Estudiante': tipo_estudiante
+    correo = input("Correo electrónico: ")
+    nombre_comercio = input("Nombre del comercio: ")
+    telefono_comercio = input("Teléfono del comercio: ")
+    nombre_dueno = input("Nombre del dueño: ")
+    ubicacion_local = input("Ubicación del local: ")
+
+    usuarios[correo] = {
+        'Nombre Comercio': nombre_comercio,
+        'Teléfono Comercio': telefono_comercio,
+        'Nombre Dueño': nombre_dueno,
+        'Ubicación Local': ubicacion_local
     }
-    print(f'Usuario con Cédula {cedula} registrado con éxito.')
 
-def enviar_consulta():
-    cedula = input("Ingrese su número de cédula: ")
-    if cedula in usuarios:
-        print("Opciones de destinatario:")
-        print("1. Profesores")
-        print("2. Servicios Estudiantiles")
-        print("3. Administración")
-        print("4. Procesos de Matrícula")
-        opcion = input("Seleccione el destinatario (1/2/3/4): ")
+    print(f'Usuario con correo {correo} registrado con éxito.')
+    guardar_datos()
 
-        destinatarios = {
-            '1': "Profesores",
-            '2': "Servicios Estudiantiles",
-            '3': "Administración",
-            '4': "Procesos de Matrícula"
-        }
+def registrar_factura():
+    tipo_cedula = input("Tipo de cédula (1 para Nacional / 2 para Extranjero): ")
+    numero_cedula = input("Número de cédula: ")
+    nombre_registrado = input("Nombre registrado: ")
+    telefono = input("Teléfono: ")
+    correo = input("Correo: ")
+    provincia = input("Provincia: ")
+    canton = input("Cantón: ")
+    distrito = input("Distrito: ")
 
-        destinatario = destinatarios.get(opcion, "Otros")
+    facturas[numero_cedula] = {
+        'Tipo Cédula': 'Nacional' if tipo_cedula == '1' else 'Extranjero',
+        'Número Cédula': numero_cedula,
+        'Nombre Registrado': nombre_registrado,
+        'Teléfono': telefono,
+        'Correo': correo,
+        'Provincia': provincia,
+        'Cantón': canton,
+        'Distrito': distrito
+    }
 
-        consulta = input(f"Escriba su consulta para {destinatario}: ")
-#Se una el len consultas para poder hacer un contador de las consultas y sumar 1 cada vez que se haga una nueva.
-        numero_consulta = len(consultas) + 1
-        consultas[numero_consulta] = {
-            'Cédula': cedula,
-            'Destinatario': destinatario,
-            'Consulta': consulta
-        }
-        print(f"Consulta enviada con éxito (Número de consulta: {numero_consulta}).")
+    print('Factura electrónica registrada con éxito.')
+    guardar_datos()
+
+def crear_paquete(correo_usuario):
+    global numero_guia_actual  # Agregar esta línea para indicar que se usará la variable global
+    nombre_destinatario = input("Nombre de destinatario: ")
+    telefono_destinatario = input("Teléfono de destinatario: ")
+    numero_cedula_destinatario = input("Número de cédula de destinatario: ")
+    peso_paquete = float(input("Peso de paquete (Kilogramos): "))
+    cobro_contra_entrega = input("¿Cobro contra entrega? (1 para Sí / 2 para No): ")
+    
+    if cobro_contra_entrega == '1':
+        monto_cobro = float(input("Monto a cobrar al momento de entregar el paquete (colones): "))
     else:
-        print("Usuario con Cédula no registrado. Regístrese primero.")
+        monto_cobro = 0.0
 
-def ver_consultas(cedula):
-    print(f"Consultas realizadas por el usuario con Cédula {cedula}:")
-    consultas_usuario = [consulta_info for consulta_info in consultas.values() if consulta_info['Cédula'] == cedula]
-    if not consultas_usuario:
-        print("Este usuario no ha realizado ninguna consulta.")
-    else:
-        #El método enumerate quisimos añadirlo para poder encasillar cada consulta, comienza desde el uno.
-        for numero, consulta_info in enumerate(consultas_usuario, start=1): 
-            print(f"Número de consulta: {numero}")
-            print(f"Destinatario: {consulta_info['Destinatario']}")
-            print(f"Consulta: {consulta_info['Consulta']}")
-            print()
+    punto_recoleccion = usuarios[correo_usuario]['Ubicación Local']
 
-print("---BIENVENIDO A LA MENSAJERÍA DE FIDÉLITAS---")
+    numero_guia = numero_guia_actual
+    paquetes[numero_guia] = {
+        'Estado': 'Creado',
+        'Comercio': usuarios[correo_usuario],
+        'Destinatario': {
+            'Nombre': nombre_destinatario,
+            'Teléfono': telefono_destinatario,
+            'Número Cédula': numero_cedula_destinatario
+        },
+        'Peso': peso_paquete,
+        'Cobro Contra Entrega': {
+            'Requiere Cobro': cobro_contra_entrega == '1',
+            'Monto': monto_cobro
+        },
+        'Numero Guia': numero_guia
+    }
+    numero_guia_actual += 1
 
+    print(f'Paquete creado con éxito. Número de guía: {numero_guia}')
+
+    # Cambiar el estado del paquete a 'Recolectado' automáticamente
+    paquetes[numero_guia]['Estado'] = 'Recolectado'
+
+    # Mostrar guía
+    generar_guia(paquetes[numero_guia])
+
+    guardar_datos()
+
+def generar_guia(paquete):
+    print(f"Número de guía: {paquete['Numero Guia']}")
+    print("Información de comercio:")
+    print(f"Nombre: {paquete['Comercio']['Nombre Comercio']}")
+    print(f"Número de teléfono: {paquete['Comercio']['Teléfono Comercio']}")
+    print("Información del destinatario:")
+    print(f"Nombre: {paquete['Destinatario']['Nombre']}")
+    print(f"Teléfono: {paquete['Destinatario']['Teléfono']}")
+    print(f"Si requiere cobro, monto a cobrar: {paquete['Cobro Contra Entrega']['Monto']} colones.")
+
+def estadisticas():
+    print("Estadísticas:")
+    print(f"1. Cantidad total de envíos: {len(paquetes)}")
+    print("2. Lista de paquetes enviados:")
+    for numero_guia, paquete in paquetes.items():
+        print(f"   - Número de guía: {numero_guia}, Estado: {paquete['Estado']}")
+    print(f"3. Monto total de cobro: {sum([paquete['Cobro Contra Entrega']['Monto'] for paquete in paquetes.values()])} colones")
+    
+    # Contar la cantidad de paquetes por número de teléfono
+    cantidad_por_telefono = {}
+    for paquete in paquetes.values():
+        telefono_destinatario = paquete['Destinatario']['Teléfono']
+        if telefono_destinatario in cantidad_por_telefono:
+            cantidad_por_telefono[telefono_destinatario] += 1
+        else:
+            cantidad_por_telefono[telefono_destinatario] = 1
+
+    print("4. Cantidad de paquetes por número de teléfono:")
+    for telefono, cantidad in cantidad_por_telefono.items():
+        print(f"   - Teléfono: {telefono}, Cantidad: {cantidad}")
+
+    # Contar la cantidad de paquetes por número de cédula
+    cantidad_por_cedula = {}
+    for paquete in paquetes.values():
+        numero_cedula_destinatario = paquete['Destinatario']['Número Cédula']
+        if numero_cedula_destinatario in cantidad_por_cedula:
+            cantidad_por_cedula[numero_cedula_destinatario] += 1
+        else:
+            cantidad_por_cedula[numero_cedula_destinatario] = 1
+
+    print("5. Cantidad de paquetes por número de cédula:")
+    for cedula, cantidad in cantidad_por_cedula.items():
+        print(f"   - Cédula: {cedula}, Cantidad: {cantidad}")
+
+# Menú principal
 while True:
     print("Menú:")
-    print("1. Registrar usuario")
-    print("2. Enviar consulta")
-    print("3. Ver consultas realizadas")
-    print("4. Salir")
+    print("1. Registrar usuario del comercio")
+    print("2. Crear paquete para envío")
+    print("3. Registrar Factura Electrónica")
+    print("4. Rastrear paquete")
+    print("5. Estadísticas generales")
+    print("6. Salir")
 
     opcion = input("Seleccione una opción: ")
 
     if opcion == '1':
         registrar_usuario()
     elif opcion == '2':
-        enviar_consulta()
+        correo_usuario = input("Ingrese el correo electrónico del usuario del comercio: ")
+        if correo_usuario in usuarios:
+            crear_paquete(correo_usuario)
+        else:
+            print("Correo electrónico no válido. Registre el usuario del comercio primero.")
     elif opcion == '3':
-        cedula = input("Ingrese su número de cédula para ver sus consultas: ")
-        ver_consultas(cedula)
+        registrar_factura()
     elif opcion == '4':
+        rastrear_paquetes()
+    elif opcion == '5':
+        estadisticas()
+    elif opcion == '6':
+        print("Guardando datos en el archivo 'datosmensajeriafidelitas.txt'")
         break
     else:
         print("Opción no válida. Por favor, seleccione una opción válida.")
-
-print("---HASTA LUEGO, GRACIAS POR USAR NUESTRO SERVICIO---")
