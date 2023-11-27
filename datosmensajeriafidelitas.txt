@@ -1,0 +1,18 @@
+=== PAQUETES Y USUARIOS ===
+Número de paquete: 1
+Apellido: Aguilar
+Cobro Contra Entrega: si
+Correo electronico: hazel@gmail.com
+Estado: CREADO
+Monto Cobro: 0.0
+Nombre: Hazel
+Nombre Destinatario: Fiorella Martinez
+Nombre del comercio: GYM
+Número de Cédula: 118010707
+Peso de paquete: 2kg
+Precio: 3400.0
+Producto: blusa
+Teléfono: 83583333
+Teléfono Destinatario: 67805440
+ubicacion del local: Heredia,Belen,San antonio
+
